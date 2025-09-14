@@ -1,20 +1,15 @@
 #!/usr/bin/python3
 """
-This module contains Amenity class (Blueprint for creating Amenity objects).
+AirBnB Clone Project - Amenity Model
+Represents property amenities
 """
-
 from models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
     """
-    This is the amenity class
-
-    Attributes:
-        name (str): The name of the amenity
+    Amenity model for property features
+    Inherits all functionality from BaseModel
     """
-    name = ""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # self.name = Amenity.name
+    name = ""

@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 """
-This module defines a FileStorage class that stores
-and retrieves objects to and from a JSON file.
+AirBnB Clone Project - File Storage
+JSON-based persistence layer for model objects
 """
-
 import json
 from models.base_model import BaseModel
 from models.user import User
@@ -16,56 +15,45 @@ from models.review import Review
 
 class FileStorage:
     """
-    A file storage system for storing and retrieving objects.
+    Handles serialization and deserialization of objects to/from JSON
     """
 
-    __file_path = "file.json"
+    __file_path = 'file.json'
     __objects = {}
+    className = {'BaseModel': BaseModel,
+                 'User': User,
+                 'State': State,
+                 'City': City,
+                 'Amenity': Amenity,
+                 'Place': Place,
+                 'Review': Review}
 
     def all(self):
-        """
-        Returns the dictionary of all objects currently stored.
-
-        Returns:
-            dict: A dictionary of all objects currently stored.
-        """
+        """Return all stored objects"""
         return FileStorage.__objects
 
     def new(self, obj):
-        """
-        Adds a new object to the storage.
-
-        Args:
-            obj (object): The object to be added to the storage.
-        """
-        self.__objects[f"{obj.__class__.__name__}.{obj.id}"] = obj
+        """Add new object to storage with class.id key"""
+        key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+        FileStorage.__objects[key] = obj
 
     def save(self):
-        """
-        Saves the objects in the storage to a JSON file.
-        """
-        obj_dict = {}
-
-        for key, value in self.__objects.items():
-            obj_dict[key] = value.to_dict()
-
-        try:
-            with open(self.__file_path, 'w') as file:
-                json.dump(obj_dict, file, indent=2)
-        except FileNotFoundError:
-            pass
+        """Serialize all objects to JSON file"""
+        new_dict = {}
+        for key, obj in FileStorage.__objects.items():
+            new_dict[key] = obj.to_dict()
+        with open(FileStorage.__file_path, 'w') as f:
+            f.write(json.dumps(new_dict))
 
     def reload(self):
-        """
-        Reloads the objects from the JSON file into the storage.
-        """
+        """Load objects from JSON file"""
         try:
-            with open(FileStorage.__file_path, 'r') as file:
-                obj_dict = json.load(file)
-
-                for key, value in obj_dict.items():
-                    self.__objects[key] = eval(
-                        f"{value['__class__']}(**{value})")
-
+            with open(FileStorage.__file_path, 'r') as f:
+                f_contents = f.read()
+                dict_obj_dicts = json.loads(f_contents)
+            for key in dict_obj_dicts.keys():
+                obj_dict = dict_obj_dicts[key]
+                FileStorage.__objects[key] = FileStorage\
+                           .className[key.split('.')[0]](**obj_dict)
         except FileNotFoundError:
             pass
